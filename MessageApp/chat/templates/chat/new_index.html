@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Rooms</title>
+</head>
+<body>
+    {% for group in user.groupprofile_set.all %}
+        <p>
+            {{ group.name }}
+        </p>
+    {% endfor %}
+</body>
+</html>

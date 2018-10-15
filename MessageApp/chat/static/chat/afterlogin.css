@@ -1,0 +1,183 @@
+body{
+	margin-left: 0;
+	margin-right:0;
+	margin-top: 0; 
+	padding-top: 0;
+}
+
+#leftdiv{
+	position: absolute;
+	height: 100vh;
+	width: 35%;	
+	background-color: rgba(255, 255, 255, 1);
+	left: 0;
+	top: 0; 
+	position: fixed;
+	z-index: 1;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+ }
+
+#profilepart{
+	position: absolute;
+	top: 0.5%;
+	height: 10%;
+	width: 100%;
+	border-bottom:1px solid rgba(0,0,0, 0.1);
+}
+
+#profilepart button{
+	position: relative;
+	left: 67%;
+	background-color: rgba(0, 180, 0, 0.7);
+	padding: 1.5%;
+	top:-40%;
+	border-radius: 10%;
+	text-decoration: none; 
+	font-family: serif;
+	color: rgba(255, 255, 255, 1);
+	font-size: 18px; 
+}
+
+#profilepart button:hover{
+	background-color: rgba(0, 180, 0, 1); 
+}
+
+#profilepart img{
+	position: relative;
+	height: 95%;
+	width: 13%;
+	top: 0px; 
+}
+
+#logo{
+	position: relative;
+	top: 12%;
+	height: 15%;
+	width: 100%;
+	border-bottom:1px solid rgba(0,0,0, 0.1);		
+}
+
+#logo img{
+	position: relative;
+	width: 50%;
+	height: 100%;
+	top:0%;
+	left: 20%;
+}
+
+#contacts{
+	position: relative;
+	top: 15%;
+	height: auto;
+}
+
+#contacts div{	
+	display: block;
+	text-decoration: none;
+	padding: 4%;
+	background-color: white;
+	padding-left: 15px;
+	border-left: 2px solid red;
+	border-right: 2px solid red;  
+	color: rgba(0, 0, 0, 0.7);
+	font: 20px 'Roboto Slab', serif;
+}
+
+#contacts div:hover{
+	border-right: 4px solid red;
+	border-left: 4px solid red;
+	background-color: rgba(0, 0, 0, 0.2);
+	color: rgba(0, 0, 0, 1);
+}
+
+.messages{
+	position: absolute;
+	background-color: rgba(0, 0, 0, 0);
+	height: 1vh;
+	width: 65%;
+    left: 35%;
+    margin-top: 10%;
+}
+
+#searchbar{
+	position: fixed;
+	left: 35%;
+	width: 65%;
+	height: 10%;	
+	background-color: rgba(218, 218, 218, 1);
+	z-index: 1;
+}
+
+#textbox{
+	position: fixed;
+	left: 35%;
+	width: 65%;
+	height: 10%;
+	top: 90%;	
+	background-color: rgba(218, 218, 218, 1);
+	z-index: 1;
+}
+
+#searchbar input, #textbox input{
+	position: relative;
+	height: 38%;
+	width: 80%;
+	left: 4%;
+	top: 40%;
+	border: 0.5px solid rgba(0,0,0,0.3);
+	border-radius: 3px;	
+	background-color: rgba(255, 255, 255, 1);
+	text-align: left;	
+}
+
+#searchbar button, #textbox button{
+	position: relative;
+	padding: 0.5%;
+	top: 40%; 
+	left: 5%;
+	font-family: sans-serif;	
+}
+
+.display{
+	position: relative;
+	top: 12%;
+	max-width: 40%;
+	min-height: 1%;
+	background-color: rgba(0, 0, 0, 0.07);
+	border-top-left-radius: 20px;
+	border-bottom-right-radius: 20px;
+	margin-bottom: 8%;
+    padding: 2%;
+    background-color: aquamarine;
+	color: rgba(0, 0, 0, 1);
+	font-family: Helvetica;
+	word-wrap: break-word;
+	float:left;
+	clear:left;
+}
+
+.display-right{
+	position: relative;
+	top: 12%;
+	max-width: 40%;
+	min-height: 1%;
+	background-color: rgba(0, 0, 0, 0.07);
+	border-top-left-radius: 20px;
+	border-bottom-right-radius: 20px;
+	margin-bottom: 8%;
+    padding: 2%;
+    background-color: blueviolet;
+	color: rgba(0, 0, 0, 1);
+	font-family: Helvetica;
+	word-wrap: break-word;
+	float:left;
+	clear:left;
+}
+
+
+
+#searchbar button:hover, #textbox button:hover{
+	color: rgba(0,0,0,1);
+}
+

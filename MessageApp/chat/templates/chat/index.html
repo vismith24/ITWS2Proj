@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+    {% load static %}
+    
+    <link rel="stylesheet" type="text/css" href="{% static "chat/afterlogin.css" %}">
+    
+    <script type="text/javascript">
+        
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }        
+        
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+            }
+        });
+
+        function showdiv(x) {
+            $( '.messages' ).hide();
+            $(".sendmsg").hide();
+            var id = '#message' + x;
+            $( id ).show();
+            id = "#sendmsg" + x;
+            $( id ).show();
+        }
+
+        function add_group() {
+            var grp_name = $("#grp_name").val();
+            console.log(grp_name);
+            $.ajax({                //To add the group in the database
+                url: '/chat/add_group/',
+                type: "POST",
+                data: {
+                    name: grp_name,
+                    admin_pk: {{ user.pk }},
+                },
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                success: function(response) {     
+                    //Gets PK of group
+                    console.log(response);
+
+                    var pk = response;
+                    
+                    var div = $('<div onclick=\"showdiv('+
+                        pk + ')\"></div>');
+                    div.attr('id', 'contact'+pk);
+                    div.attr('class', 'contact_names');
+                    var textNode = document.createTextNode(grp_name);
+                    div.append(textNode); 
+                  //  console.log(div);
+                    $("#c_span").append(div);   
+    
+                    var button = $('<button></button>');
+                    button.attr('id', 'sendmsg'+pk);
+                    button.attr('class', 'sendmsg');
+                    textNode = document.createTextNode("Send");
+                    button.append(textNode);
+                    button.hide();
+                    $("#textbox").append(button);
+
+                    button.click(function() {
+                        var chatSocket = new WebSocket(
+                        'ws://' + window.location.host +
+                        '/ws/chat/' + pk + '/');
+                    
+
+                        chatSocket.onopen = function() {
+                            console.log("opened!!!!!");
+                            console.log(chatSocket);
+                            var messageInputDom = document.querySelector('#text');
+                            var message = messageInputDom.value;
+                            console.log(pk, chatSocket);
+                            chatSocket.send(JSON.stringify({
+                                'message': message
+                            }));
+                        }
+
+                        chatSocket.onmessage = function(e) {
+                            var data = JSON.parse(e.data);
+                            var message = data['message'];
+                            console.log(data);
+                            var cl;
+                            if(data['owner'] == {{ user.pk }})
+                                cl = 'display-right';
+                            else
+                                cl = 'display'
+                            var head = document.createElement('h4');
+                            head.textContent = data[owner];    
+                            var chatBox = $("#message"+ data['group']);   
+                            var new_node =  $( '#text' ).val();
+                            var div = $('<div></div>');
+                            div.append(head);
+                            var textNode = document.createTextNode(message);
+                            div.append(textNode);
+                            div.attr('class', cl);
+                            chatBox.append(div);
+                            chatBox.append(document.createElement('br'));
+
+                            $( '#text' ).val("");
+                            div.focus()
+                        };
+
+                        chatSocket.onclose = function(e) {
+                            console.error('Chat socket closed unexpectedly');
+                        };
+
+                        this.onclick = function(e) {
+                            var messageInputDom = document.querySelector('#text');
+                            var message = messageInputDom.value;
+                            console.log(pk, chatSocket);
+                            chatSocket.send(JSON.stringify({
+                                'message': message
+                            }));
+                            
+                            messageInputDom.value = '';
+                        };
+                    });
+
+
+                    div = $('<div></div>');
+                    div.attr('id', 'message'+pk);
+                    div.attr('class', 'messages');
+                 //   console.log(div);
+                    $("#mboxs").append(div);  
+                }
+            }); 
+        }
+
+    </script>
+</head>
+
+<body>
+    <div id="leftdiv">
+        <div id="profilepart">
+            <img src="{% static "chat/8.png" %}">
+            <a href="/accounts/logout/"<button>Sign Out</button></a>
+        </div>
+        <div id="logo">
+            <img src="{% static "chat/logo.gif" %}">
+        </div>
+        <div id="contacts">
+            <span id="c_span">
+                {% for group in user.groupprofile_set.all %}
+                <div onclick="showdiv({{ group.pk }})" 
+                    class="contact_names" id="contact{{ group.pk  }}">
+                    {{ group.name }}
+                </div>
+                {% endfor %}
+            </span>
+            <br><br>
+            Add group <br>
+            <div id="add_grp">
+                <input type="text" id="grp_name"> 
+                <button id="grp_button" 
+                    onclick="add_group();"> Add </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="rightdiv">
+        <div id="searchbar">
+            <input type="search" name="search" placeholder="Search">
+            <button>Search</button>        
+        </div>
+        <span id="mboxs">
+            {% for group in user.groupprofile_set.all %}
+            <div id="message{{ group.pk }}" class="messages">
+                
+            </div>
+            {% endfor %}
+        </span>
+
+
+        <div id="textbox">
+            <input type="text" id="text" name="text" 
+                placeholder="Type a message" autofocus>
+            {% for group in user.groupprofile_set.all %}
+            <button id="sendmsg{{ group.pk }}" 
+                class = "sendmsg">
+                Send
+            </button>
+            {% endfor %}
+
+        </div>
+        <script>
+            $( '.messages' ).hide();
+            $(".sendmsg").hide();
+            $( '.messages' ).eq(0).show();
+            $( '.sendmsg' ).eq(0).show();
+        </script>
+    </div>
+</body>
+
+<script>
+    function add_old() {
+        {% for group in user.groupprofile_set.all %}
+            var chatBox = $("#message"+ {{ group.pk }});   
+            {% for message in group.message_set.all %}
+                var div = $('<div></div>');
+                var text = "{{message.sender}}"
+                var text2 ="{{message.text}}";
+                //console.log(text);
+                var head = document.createElement('h4');
+                var textNode = document.createTextNode(text);
+                head.textContent = text;
+                console.log(head);
+                div.append(head);
+                div.append(document.createTextNode(text2));
+                if("{{message.sender.pk}}" == {{ user.pk }})
+                    cl = 'display-right';
+                else
+                    cl = 'display'
+                div.attr('class', cl);
+                chatBox.append(div);
+            {% endfor %}
+        {% endfor %}
+    };
+    add_old();
+
+    $(" .sendmsg ").each(function() {
+        var roomName = this.id.slice(7);
+        
+        var chatSocket = new WebSocket(
+        'ws://' + window.location.host +
+        '/ws/chat/' + roomName + '/');
+    
+
+        chatSocket.onmessage = function(e) {
+            var data = JSON.parse(e.data);
+            var message = data['message'];
+            console.log(data);
+            
+            if(data['owner'] == {{ user.pk }})
+                cl = 'display-right';
+            else
+                cl = 'display'
+            var chatBox = $("#message"+ data['group']);
+            var head = document.createElement('h4');
+            head.textContent = data['owner'];
+            var new_node =  $( '#text' ).val();
+            var div = $('<div></div>');
+            var textNode = document.createTextNode(message);
+            div.append(head);
+            div.append(textNode);
+            div.attr('class', cl);
+            chatBox.append(div);
+            chatBox.append(document.createElement('br'));
+            $( '#text' ).val("");
+            div.focus()
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        this.onclick = function(e) {
+            var messageInputDom = document.querySelector('#text');
+            var message = messageInputDom.value;
+            console.log(roomName, chatSocket);
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            
+            messageInputDom.value = '';
+        };
+    });
+</script>
+
+</html>
